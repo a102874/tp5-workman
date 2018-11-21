@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>简单百搭的登录页面_sj520</title>
+    <link rel="stylesheet" href="/static/chat/css/style2.css">
+</head>
+<body>
+<div id="main">
+    <div class="form">
+        <div class="form-head">
+            <h2>登录</h2>
+            <p>还没有账号？<a href="register.html">立即注册</a></p>
+        </div>
+        <div class="form-body">
+
+            <div class="ui-input">
+                <input class="abc" name="phone" id="phone" type="text" placeholder="手机号或邮箱">
+            </div>
+            <div class="ui-input">
+                <input type="password" name="password"  id="password" placeholder="密码">
+            </div>
+            <p class="forget-password">
+                <a href="forget.html">忘记密码？</a>
+            </p>
+            <button class="ui-button ui-button--primary"  id="login_btn">登录</button>
+        </div>
+    </div>
+</div>
+<!--<script src="/static/chat/js/jquery-1.9.1.min.js"></script>-->
+<!--<script src="/static/chat/js/script.js"></script>-->
+
+<script src="http://www.jq22.com/jquery/1.11.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="/static/chat/js/swfobject.js"></script>
+<script type="text/javascript" src="/static/chat/js/web_socket.js"></script>
+<script>
+
+
+    if (typeof console == "undefined") {    this.console = { log: function (msg) {  } };}
+    // 如果浏览器不支持websocket，会使用这个flash自动模拟websocket协议，此过程对开发者透明
+    WEB_SOCKET_SWF_LOCATION = "__PUBLIC__/chat/swf/WebSocketMain.swf";
+    // 开启flash的websocket debug
+    WEB_SOCKET_DEBUG = true;
+
+    var ws, name, client_list={};
+    $('#login_btn').on('click', function(){
+
+            phone=$('#phone').val();
+            password=$('#password').val();
+            if(! password){
+                alert('请填写你的密码')
+                return false;
+            }
+        if(!phone){
+            alert('请填写你的电话号码')
+            return false;
+        }
+            $.ajax({
+                type: "POST",  //提交方式
+                url: "/index/Login/login",//路径
+                data: {phone:phone,password:password},
+                dataType: "json",
+                //数据，这里使用的是Json格式进行传输
+                success: function (result) {
+       if(result.statu==1) {
+
+           connect();
+
+
+          location.href = "/index/index/index/";
+       }else{
+           alert(result.msg);
+       }
+                }
+            });
+
+    });
+
+    function connect() {
+        // 创建websocket
+        ws = new WebSocket("ws://"+document.domain+":7272");
+
+        name= {$Think.session.UserInfo.id};
+        console.log(name);
+        // 当socket连接打开时，输入用户名
+        ws.onopen = onopen;
+        // 当有消息时根据消息类型显示不同信息
+        // ws.onmessage = onmessage;
+        ws.onclose = function() {
+            console.log("连接关闭，定时重连");
+            connect();
+        };
+        ws.onerror = function() {
+            console.log("出现错误");
+        };
+    }
+
+    function onopen()
+    {
+        if(!name)
+        {
+            show_prompt();
+        }
+        // 登录
+        var login_data = '{"type":"login","client_name":"'+name.replace(/"/g, '\\"')+'"}';
+        console.log("websocket握手成功，发送登录数据:"+login_data);
+        ws.send(login_data);
+    }
+    </script>
+</body>
+</html>
