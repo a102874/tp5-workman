@@ -127,3 +127,10 @@ All rights reserved。
 ThinkPHP® 商标和著作权所有者为上海顶想信息科技有限公司。
 
 更多细节参阅 [LICENSE.txt](LICENSE.txt)
+
+##workerman
+集成workerman 具体参考vendor文件；
+数据库在data 文件下
+在Windows环境下， 请加开启 start_for_win.bat；
+包含用户即时聊天，离线信息，登录后推送，实时显示用户在线
+
